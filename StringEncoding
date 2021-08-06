@@ -1,59 +1,35 @@
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         StringEncoding stringEncoding = new StringEncoding();
-        System.out.println("Decoded string:\n" + stringEncoding.decodeString(3, "mnes__ya_____mi"));
+        System.out.println("Decoded string: " + stringEncoding.decodeString(2, "hlowrd_el_ol"));
     }
 
     public String decodeString(int numberOfRows, String encodedString) {
-        StringBuilder stringBuilder = new StringBuilder();
-        /*
-        with the encoded string length divide it to get the number of columns to
-        form a matrix or 2D array to display the encoded words
-         */
-        int stringLength = encodedString.length();
-        int numberOfColumns = stringLength / numberOfRows;
+        StringBuilder sb = new StringBuilder();
+        int cols = encodedString.length() / numberOfRows;
+        int start = 0, end = cols, startIndex = 0, index = 0, loopBroken = 0;
 
-        //create a 2-d array with the encoded string
-        char[][] encodedCharacterArray = new char[numberOfRows][numberOfColumns];
-        /* example
-        [
-        [m, n, e, s, _],
-        [_, y, a, _, _],
-        [_, _, _, m, i]
-        ]
-         */
-        /*
-        with the 2-d char array, we can print our encoded characters in it.
-        we also know that our characters in the encoded string are stored contiguously in the 2-d array
-         */
+        List<String> broken = new ArrayList<>();
+        for (int i = 0; i < numberOfRows; i++) {
+            broken.add(encodedString.substring(start, end));
+            start += cols;
+            end += cols;
+        }
 
-        //counter to help us navigate through the string
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++)
-            for (int j = 0; j < numberOfColumns; j++) {
-                encodedCharacterArray[i][j] = encodedString.charAt(k);
-                k++;
+        System.out.println(broken);
+
+        //add chars into sb
+        for (int i = 0; i < encodedString.length(); i++) {
+            if (index < cols) {
+                char c = broken.get(loopBroken).charAt(index) == '_' ? ' ' : broken.get(loopBroken).charAt(index);
+                sb.append(c);
             }
+            index++;
+            loopBroken++;
 
-        System.out.println("Encoded string in a multidimensional array:\n" + Arrays.deepToString(encodedCharacterArray));
-        return diagonalTraversal(encodedCharacterArray, stringBuilder);
-    }
-
-    static String diagonalTraversal(char[][] chars, StringBuilder stringBuilder) {
-        //loop through the 2-d array picking characters diagonally
-        for (int i = 0; i <= chars.length; i++) {
-            // the number of columns are equal to chars[0].length
-            for (int j = 0, k = i; j < chars.length && k < chars[0].length; j++, k++) {
-                //increment j up to chars.length which defines our window of operation
-                //increment k up to chars[0].length which defines our column size
-                if (chars[j][k] == '_') {
-                    //if we encounter _ append whitespace
-                    stringBuilder.append(' ');
-                } else {
-                    //else append the character at that position
-                    stringBuilder.append(chars[j][k]);
-                }
+            if (loopBroken % numberOfRows == 0) {
+                index = Math.min(index, startIndex += 1);
+                loopBroken = 0;
             }
         }
-        System.out.println();
-        return stringBuilder.toString();
+        return sb.toString().trim();
     }
